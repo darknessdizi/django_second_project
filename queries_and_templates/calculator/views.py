@@ -3,6 +3,7 @@ import datetime
 import os
 from django.http import HttpResponse
 
+
 DATA = {
     'omlet': {
         'яйца, шт': 2,
@@ -19,7 +20,6 @@ DATA = {
         'сыр, ломтик': 1,
         'помидор, ломтик': 1,
     },
-    # можете добавить свои рецепты ;)
 }
 
 # Напишите ваш обработчик. Используйте DATA как источник данных
@@ -32,6 +32,29 @@ DATA = {
 #   }
 # }
 
+def recipes_view(request, offset):
+    servings = request.GET.get('servings', None)
+    text = 'Добавьте в url название рецепта Пример: omlet'
+    recipe = None
+    if offset:
+        if offset in DATA:
+            if servings:
+                servings = int(servings)
+                new_recipe = {}
+                for key, value in DATA[offset].items():
+                    new_recipe[key] = value * servings
+                recipe = new_recipe
+            else:
+                recipe = DATA[offset]
+        else:
+            text = 'Такого рецепта не знаю :'
+    context = {
+        'recipe': recipe,
+        'text': text,
+    }
+    return render(request, 'calculator/index.html', context)
+
+
 def home_view(request):
     template_name = 'calculator/home.html'
     # впишите правильные адреса страниц, используя
@@ -42,9 +65,6 @@ def home_view(request):
         'Показать содержимое рабочей директории': 'workdir/',
         'Рецепты': 'recipes/',
     }
-    
-    # context и параметры render менять не нужно
-    # подбробнее о них мы поговорим на следующих лекциях
     context = {
         'pages': pages
     }
@@ -62,7 +82,3 @@ def time_view(request):
 def workdir_view(request):
     list_files = '******'.join(os.listdir())
     return HttpResponse(list_files)
-
-
-def recipes_view(request):
-    return HttpResponse('recipes_view')
