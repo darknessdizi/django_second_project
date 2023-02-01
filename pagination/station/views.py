@@ -10,26 +10,16 @@ def index(request):
 
 
 def bus_stations(request):
-    # получите текущую страницу и передайте ее в контекст
-    # также передайте в контекст список станций на странице
     with open(settings.BUS_STATION_CSV, newline='', encoding='utf-8') as input_file:
-        rdr = csv.DictReader(input_file)
-        object_list = []
-        for element in rdr:
-            object_list.append(element)
+        object_list = [i for i in csv.DictReader(input_file)]
 
-    # with open(settings.BUS_STATION_CSV, newline='', encoding='utf-8') as input_file:
-    # paginator = Paginator(object_list, 10)
-        # print('**1**', csv.reader(input_file))
-        # for i in csv.reader(input_file):
-        #     print(i)
+    page_number = int(request.GET.get("page", 1))
+    paginator = Paginator(object_list, 10)
+    page = paginator.get_page(page_number)
 
-    # page_number = int(request.GET.get("page", 1))
-    # page = paginator.get_page(page_number)
- 
     context = {
-        'bus_stations': rdr,
-        # 'page': page,
-    }
-    
-    return render(request, 'station/index.html', context)
+                'bus_stations': page,
+                'page': page,
+            } 
+    return render(request, 'station/index.html', context) 
+ 
